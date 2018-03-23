@@ -26,12 +26,7 @@ class App extends Component {
     this.state = {
       result: null,
       searchTerm: DEFAULT_QUERY,
-      };
-
-    /*this.state = {
-      list: list,
-      searchTerm: '',
-    };*/
+    };
 
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
@@ -42,20 +37,27 @@ class App extends Component {
   setSearchTopStories(result) {
     this.setState({ result });
   }
+
   fetchSearchTopStories(searchTerm) {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
       .then(response => response.json())
       .then(result => this.setSearchTopStories(result))
       .catch(e => e);
   }
+
   componentDidMount() {
     const { searchTerm } = this.state;
     this.fetchSearchTopStories(searchTerm);
   }
 
   onDismiss(id) {
-    const updatedList = this.state.list.filter(item => item.objectID !== id);
-    this.setState({ list: updatedList });         
+    
+    const isNotId = item => item.objectID !== id;
+    const updatedHits = this.state.result.hits.filter(isNotId);
+    this.setState({
+      result:  { ...this.state.result, hits: updatedHits }
+    });
+
   }
 
   onSearchChange(event) {
@@ -65,8 +67,6 @@ class App extends Component {
   render() {
     const { searchTerm, result } = this.state;
     
-    if (!result) { return null; }
-
     return (     
       <div className="page" >
         <div className="interactions">
@@ -77,11 +77,14 @@ class App extends Component {
           Search
         </Search>
         </div>
-        <Table 
-          list={result.hits}
-          pattern={searchTerm}
-          onDismiss={this.onDismiss}
-        />
+        {result
+          ? <Table
+            list={result.hits}
+            pattern={searchTerm}
+            onDismiss={this.onDismiss}
+          />
+          : null
+        }
       </div >
     );
   }
@@ -134,8 +137,7 @@ const Table =  ({list, pattern, onDismiss}) =>
             className="button-inline"
           >
             Dismiss
-</Button>
-
+          </Button>
         </span>
 
       </div>
