@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import fetch from 'isomorphic-fetch';
 
 const DEFAULT_QUERY = 'php';
 const DEFAULT_HPP = '10';
@@ -239,6 +240,10 @@ const Button = ({onClick, className='',children})=>
     {children}
   </button>
 
-    
-
 export default App;
+
+export {
+  Button,
+  Search,
+  Table
+}
