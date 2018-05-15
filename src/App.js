@@ -34,6 +34,7 @@ class App extends Component {
       searchKey:'',
       searchTerm: DEFAULT_QUERY,
       error: null,
+      isLoading: false,
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
@@ -66,13 +67,16 @@ class App extends Component {
     this.setState({
       results: {
         ...results,
-        [searchKey]: { hits: updatedHits, page }
-      }
+        [searchKey]: { hits: updatedHits, page },
+      },
+      isLoading: false
     });
 
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
+    this.setState({ isLoading: true });
+
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(response => response.json())
       .then(result => this.setSearchTopStories(result))
@@ -120,7 +124,8 @@ class App extends Component {
       searchTerm,
       results,
       searchKey,
-      error
+      error, 
+      isLoading
     } = this.state;
 
     const page = (
@@ -159,9 +164,14 @@ class App extends Component {
           />               
         }               
           <div className="interactions">
-            <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+          {isLoading
+            ? <Loading />
+            : <Button
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
               More
             </Button>
+            }
+  
           </div>
         
       </div >
@@ -298,6 +308,8 @@ Button.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+const Loading = () =>
+<div>Loading ...</div>
 
 export default App;
 
